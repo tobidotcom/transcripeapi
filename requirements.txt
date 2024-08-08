@@ -1,0 +1,5 @@
+Flask
+pytube
+pydub
+openai
+gunicorn
