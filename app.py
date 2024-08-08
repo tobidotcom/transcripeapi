@@ -12,7 +12,7 @@ openai.api_key = os.getenv('OPENAI_API_KEY')
 def download_youtube_audio(url):
     yt = YouTube(url)
     audio_stream = yt.streams.filter(only_audio=True).first()
-    
+
     # Download the audio file
     with tempfile.NamedTemporaryFile(delete=False, suffix='.mp4') as temp_file:
         audio_stream.download(output_path=temp_file.name)
@@ -26,6 +26,7 @@ def transcribe():
     if not video_url:
         return jsonify({'error': 'No video URL provided'}), 400
 
+    audio_file_path = None
     try:
         audio_file_path = download_youtube_audio(video_url)
         with open(audio_file_path, 'rb') as audio_file:
@@ -37,8 +38,8 @@ def transcribe():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
     finally:
-        # Clean up temporary file
-        if os.path.exists(audio_file_path):
+        # Clean up temporary file if it exists
+        if audio_file_path and os.path.exists(audio_file_path):
             os.remove(audio_file_path)
 
 if __name__ == '__main__':
