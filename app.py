@@ -21,12 +21,12 @@ def download_youtube_audio(url):
 @app.route('/transcribe', methods=['POST'])
 def transcribe():
     data = request.json
+    if not data or 'video_url' not in data:
+        return jsonify({'error': 'Invalid input: video_url is required'}), 400
+
     video_url = data.get('video_url')
-
-    if not video_url:
-        return jsonify({'error': 'No video URL provided'}), 400
-
     audio_file_path = None
+
     try:
         audio_file_path = download_youtube_audio(video_url)
         with open(audio_file_path, 'rb') as audio_file:
