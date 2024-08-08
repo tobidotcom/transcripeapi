@@ -3,3 +3,4 @@ pytube
 pydub
 openai
 gunicorn
+moviepy
