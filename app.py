@@ -20,6 +20,7 @@ def download_youtube_audio(url):
 
 @app.route('/transcribe', methods=['POST'])
 def transcribe():
+    audio_file_path = None
     try:
         data = request.json
         if not data or 'video_url' not in data:
@@ -39,11 +40,13 @@ def transcribe():
         return jsonify({'transcription': transcription['text']})
 
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
-    
+        app.logger.error(f"An error occurred: {e}")
+        return jsonify({'error': 'An internal server error occurred'}), 500
+
     finally:
         if audio_file_path and os.path.exists(audio_file_path):
             os.remove(audio_file_path)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
+
