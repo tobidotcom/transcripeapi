@@ -20,25 +20,28 @@ def download_youtube_audio(url):
 
 @app.route('/transcribe', methods=['POST'])
 def transcribe():
-    data = request.json
-    if not data or 'video_url' not in data:
-        return jsonify({'error': 'Invalid input: video_url is required'}), 400
-
-    video_url = data.get('video_url')
-    audio_file_path = None
-
     try:
+        data = request.json
+        if not data or 'video_url' not in data:
+            return jsonify({'error': 'Invalid input: video_url is required'}), 400
+
+        video_url = data.get('video_url')
         audio_file_path = download_youtube_audio(video_url)
+
+        if not audio_file_path:
+            return jsonify({'error': 'Failed to download audio'}), 500
+
         with open(audio_file_path, 'rb') as audio_file:
             transcription = openai.Audio.transcriptions.create(
                 model="whisper-1",
                 file=audio_file
             )
         return jsonify({'transcription': transcription['text']})
+
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    
     finally:
-        # Clean up temporary file if it exists
         if audio_file_path and os.path.exists(audio_file_path):
             os.remove(audio_file_path)
 
